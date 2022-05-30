@@ -1,6 +1,6 @@
 import axios from 'axios';
 
-const server = "http://127.0.0.1:3001" + "/";
+const server = process.env.VUE_APP_SERVER + "/";
 
 const defaultHeader = {'Access-Control-Allow-Origin': '*', 'Content-Type': 'application/json; charset=utf-8'}
 
