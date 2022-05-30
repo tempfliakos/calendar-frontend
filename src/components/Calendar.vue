@@ -43,9 +43,7 @@
                     :rules="emptyRules"
                     @blur="validate"
                 ></v-text-field>
-              </v-card-text>
 
-              <v-card-text>
                 <v-text-field
                     label="Mettől"
                     v-model="actualEvent.startTime"
@@ -53,10 +51,9 @@
                     type="time"
                     :rules="emptyRules"
                     @blur="validate"
+                    dark
                 ></v-text-field>
-              </v-card-text>
 
-              <v-card-text>
                 <v-text-field
                     label="Meddig"
                     v-model="actualEvent.endTime"
@@ -65,22 +62,19 @@
                     :rules="emptyRules"
                     @blur="validate"
                 ></v-text-field>
-              </v-card-text>
 
-              <v-card-text>
                 <v-text-field
                     label="Résztvevők száma"
                     v-model="actualEvent.attendees_count"
                     :value="actualEvent.attendees_count"
                     type="number"
                 ></v-text-field>
-              </v-card-text>
 
-              <v-card-text>
                 <v-textarea
                     label="Résztvevők"
                     v-model="actualEvent.attendees"
                     :value="actualEvent.attendees"
+                    rows="3"
                     hint="Résztvevők felsorolása"
                 ></v-textarea>
               </v-card-text>

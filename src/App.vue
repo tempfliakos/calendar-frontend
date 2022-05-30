@@ -103,7 +103,7 @@ export default {
 
 <style>
 html {
-  overflow-y: hidden;
+  background-color: #1E1E1E;
 }
 
 ::-webkit-scrollbar {
