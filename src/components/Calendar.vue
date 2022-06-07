@@ -27,7 +27,7 @@
 
         <v-dialog
             v-model="dialogOpen"
-            max-width="290"
+            max-width="300"
         >
           <v-form v-model="valid" ref="form">
             <v-card>
@@ -77,6 +77,45 @@
                     rows="3"
                     hint="Résztvevők felsorolása"
                 ></v-textarea>
+
+                <v-checkbox
+                    v-model="weekly"
+                    label="Heti ismétlődés"
+                    :value="weekly"
+                    hide-details
+                    dark
+                ></v-checkbox>
+
+                <v-menu
+                    v-model="datePicker"
+                    :close-on-content-click="false"
+                    :nudge-right="40"
+                    transition="scale-transition"
+                    offset-y
+                    min-width="auto"
+                    v-if="weekly"
+                    dark
+                >
+                  <template v-slot:activator="{ on, attrs }">
+                    <v-text-field
+                        v-model="repeatUntil"
+                        label="Ismétlődés eddig"
+                        prepend-icon="mdi-calendar"
+                        readonly
+                        v-bind="attrs"
+                        v-on="on"
+                        locale="hu-hu"
+                        dark
+                    ></v-text-field>
+                  </template>
+                  <v-date-picker
+                      v-model="repeatUntil"
+                      @input="datePicker = false"
+                      locale="hu-hu"
+                      dark
+                      first-day-of-week=1
+                  ></v-date-picker>
+                </v-menu>
               </v-card-text>
 
               <v-card-actions>
@@ -126,6 +165,9 @@ export default {
       today: this.parseDate(new Date()),
       dialogOpen: false,
       actualEvent: {},
+      weekly: false,
+      repeatUntil: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
+      datePicker: false,
       valid: false,
       emptyRules: [
         v => !!v || 'Kötelező adat!',
@@ -158,7 +200,6 @@ export default {
       for (let reserve of this.reserves) {
         reserve.start = this.parseDate(new Date(reserve.start));
         reserve.end = this.parseDate(new Date(reserve.finish));
-        console.log(reserve);
       }
       return this.reserves;
     },
@@ -221,31 +262,67 @@ export default {
     async save() {
       this.validate();
       if (this.valid) {
-        let start = new Date(this.actualEvent.start);
-        let time = this.getTimeFromString(this.actualEvent.startTime);
-        start.setHours(time.hour, time.minute, 0, 0);
+        if(this.weekly) {
+          let event = {
+            start: new Date(this.actualEvent.start),
+            startTime: this.actualEvent.startTime,
+            finish: new Date(this.actualEvent.finish),
+            endTime: this.actualEvent.endTime
+          }
+          while (new Date(this.repeatUntil) > event.start) {
+            await this.createReserves(this.getStartAndFinish(event), true);
+            event.start.setDate(event.start.getDate() + 7);
+            event.finish.setDate(event.finish.getDate() + 7);
+          }
+        } else {
+          await this.createReserves();
+        }
+        this.cancel();
+      }
+    },
 
-        let finish = new Date(this.actualEvent.finish);
-        time = this.getTimeFromString(this.actualEvent.endTime);
-        finish.setHours(time.hour, time.minute, 0, 0);
+    getStartAndFinish(event = this.actualEvent) {
+      let start = new Date(event.start);
+      let time = this.getTimeFromString(event.startTime);
+      start.setHours(time.hour, time.minute, 0, 0);
 
+      let finish = new Date(event.finish);
+      time = this.getTimeFromString(event.endTime);
+      finish.setHours(time.hour, time.minute, 0, 0);
+
+      return {
+        start: start,
+        finish: finish
+      }
+    },
+
+    async createReserves(startAndFinish = this.getStartAndFinish(), weekly = false) {
+      if(weekly) {
         this.actualEvent = {
-          id: this.actualEvent.id,
           name: this.actualEvent.name,
-          start: this.parseDate(start),
-          finish: this.parseDate(finish),
+          start: this.parseDate(startAndFinish.start),
+          finish: this.parseDate(startAndFinish.finish),
           attendees_count: this.actualEvent.attendees_count,
           attendees: this.actualEvent.attendees
         };
-        if (this.actualEvent.id) {
-          this.reserves = this.reserves.filter(r => r.id !== this.actualEvent.id);
-          this.actualEvent = await putToEndpoint('reserves', this.actualEvent);
-        } else {
-          this.actualEvent = await postToEndpoint('reserves', this.actualEvent);
-        }
-        this.reserves.push(this.actualEvent);
-        this.cancel();
+      } else {
+        this.actualEvent = {
+          id: this.actualEvent.id,
+          name: this.actualEvent.name,
+          start: this.parseDate(startAndFinish.start),
+          finish: this.parseDate(startAndFinish.finish),
+          attendees_count: this.actualEvent.attendees_count,
+          attendees: this.actualEvent.attendees
+        };
       }
+
+      if (this.actualEvent.id) {
+        this.reserves = this.reserves.filter(r => r.id !== this.actualEvent.id);
+        this.actualEvent = await putToEndpoint('reserves', this.actualEvent);
+      } else {
+        this.actualEvent = await postToEndpoint('reserves', this.actualEvent);
+      }
+      this.reserves.push(this.actualEvent);
     },
 
     cancel() {
@@ -275,6 +352,7 @@ export default {
 
     flipOpen() {
       this.dialogOpen = !this.dialogOpen;
+      this.weekly = false;
     },
   },
 }
