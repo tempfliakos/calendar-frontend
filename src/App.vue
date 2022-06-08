@@ -21,7 +21,9 @@
         <v-btn text @click="stepDays(-7)">
           <v-icon>mdi-arrow-left</v-icon>
         </v-btn>
-        <p style="display: contents;">{{ parseDate(getNthWeekDay(0), false) }} - {{ parseDate(getNthWeekDay(4), false) }}</p>
+        <p style="display: contents;">{{ parseDate(getNthWeekDay(0), false) }} - {{
+            parseDate(getNthWeekDay(4), false)
+          }}</p>
         <v-btn text @click="stepDays(7)">
           <v-icon>mdi-arrow-right</v-icon>
         </v-btn>
@@ -33,7 +35,7 @@
     </v-app-bar>
 
     <v-main>
-      <Calendar :start="start" :reserves="reserves"/>
+      <Calendar :start="start" :reserves="reserves" @reserveFilter="reserveFilter"/>
     </v-main>
   </v-app>
 </template>
@@ -48,6 +50,7 @@ export default {
   components: {
     Calendar
   },
+
 
   data() {
     return {
@@ -91,6 +94,10 @@ export default {
     addPreZero(num) {
       return num < 10 ? '0' + num : num;
     },
+
+    reserveFilter(reservesParam) {
+      this.reserves = reservesParam;
+    }
   },
 
   mounted() {

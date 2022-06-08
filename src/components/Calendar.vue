@@ -13,13 +13,12 @@
             :weekdays="[1, 2, 3, 4, 5]"
             @click:event="this.showEvent"
             @click:time="this.createElement"
-            event-color="#528BBF"
+            :event-color="getEventColor"
             :first-interval=6
             :interval-count=15
         >
           <template v-slot:event="{ event }">
             <div
-                class="v-event-draggable"
                 v-html="eventSummary(event)"
             ></div>
           </template>
@@ -36,6 +35,19 @@
               </v-card-title>
 
               <v-card-text>
+
+                <p>Esemény színe</p>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 20px">
+                  <v-btn
+                      v-for="colorTemp in colors" :key="colorTemp"
+                      :color="colorTemp"
+                      fab
+                      @click="actualEvent.color = colorTemp"
+                      x-small
+                      dark>
+                    <v-icon v-if="actualEvent.color === colorTemp">mdi-check</v-icon>
+                  </v-btn>
+                </div>
                 <v-text-field
                     label="Megbeszélés neve"
                     v-model="actualEvent.name"
@@ -165,6 +177,9 @@ export default {
       today: this.parseDate(new Date()),
       dialogOpen: false,
       actualEvent: {},
+      colors : ['#528BBF','#DB6363','#F89AFA',
+        '#75CF68', '#D6D470', '#C0774E',
+        '#ACACAC'],
       weekly: false,
       repeatUntil: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
       datePicker: false,
@@ -174,6 +189,8 @@ export default {
       ]
     }
   },
+
+  emits: ['reserveFilter'],
 
   methods: {
 
@@ -200,8 +217,13 @@ export default {
       for (let reserve of this.reserves) {
         reserve.start = this.parseDate(new Date(reserve.start));
         reserve.end = this.parseDate(new Date(reserve.finish));
+        reserve.color = reserve.color ? reserve.color : '#528BBF';
       }
       return this.reserves;
+    },
+
+    getEventColor(event) {
+      return event.color;
     },
 
     parseDate(date, includeTime = true) {
@@ -228,6 +250,7 @@ export default {
         name: event.event.name,
         start: new Date(event.event.start),
         finish: new Date(event.event.finish),
+        color: event.event.color,
         attendees_count: event.event.attendees_count,
         attendees: event.event.attendees
       };
@@ -243,6 +266,7 @@ export default {
           name: '',
           start: undefined,
           finish: undefined,
+          color: '#528BBF',
           startTime: this.addPreZero(dayTime.hour) + ":00",
           endTime: this.addPreZero(dayTime.hour + 1) + ":00",
         };
@@ -262,7 +286,7 @@ export default {
     async save() {
       this.validate();
       if (this.valid) {
-        if(this.weekly) {
+        if (this.weekly) {
           let event = {
             start: new Date(this.actualEvent.start),
             startTime: this.actualEvent.startTime,
@@ -297,11 +321,12 @@ export default {
     },
 
     async createReserves(startAndFinish = this.getStartAndFinish(), weekly = false) {
-      if(weekly) {
+      if (weekly) {
         this.actualEvent = {
           name: this.actualEvent.name,
           start: this.parseDate(startAndFinish.start),
           finish: this.parseDate(startAndFinish.finish),
+          color: this.actualEvent.color,
           attendees_count: this.actualEvent.attendees_count,
           attendees: this.actualEvent.attendees
         };
@@ -311,6 +336,7 @@ export default {
           name: this.actualEvent.name,
           start: this.parseDate(startAndFinish.start),
           finish: this.parseDate(startAndFinish.finish),
+          color: this.actualEvent.color,
           attendees_count: this.actualEvent.attendees_count,
           attendees: this.actualEvent.attendees
         };
@@ -333,7 +359,8 @@ export default {
     remove() {
       if (this.actualEvent.id) {
         deleteToEndpoint('reserves', this.actualEvent.id);
-        this.reserves = this.reserves.filter(r => r.id !== this.actualEvent.id);
+        const reserves = this.reserves.filter(r => r.id !== this.actualEvent.id);
+        this.$emit('reserveFilter', reserves);
       }
       this.cancel();
     },
