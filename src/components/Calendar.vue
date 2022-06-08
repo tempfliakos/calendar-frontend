@@ -190,7 +190,7 @@ export default {
     }
   },
 
-  emits: ['reserveFilter'],
+  emits: ['updateReserves'],
 
   methods: {
 
@@ -341,14 +341,15 @@ export default {
           attendees: this.actualEvent.attendees
         };
       }
-
+      let reserves = [...this.reserves];
       if (this.actualEvent.id) {
-        this.reserves = this.reserves.filter(r => r.id !== this.actualEvent.id);
+        reserves = reserves.filter(r => r.id !== this.actualEvent.id);
         this.actualEvent = await putToEndpoint('reserves', this.actualEvent);
       } else {
         this.actualEvent = await postToEndpoint('reserves', this.actualEvent);
       }
-      this.reserves.push(this.actualEvent);
+      reserves.push(this.actualEvent);
+      this.$emit('updateReserves', reserves);
     },
 
     cancel() {
@@ -360,7 +361,7 @@ export default {
       if (this.actualEvent.id) {
         deleteToEndpoint('reserves', this.actualEvent.id);
         const reserves = this.reserves.filter(r => r.id !== this.actualEvent.id);
-        this.$emit('reserveFilter', reserves);
+        this.$emit('updateReserves', reserves);
       }
       this.cancel();
     },

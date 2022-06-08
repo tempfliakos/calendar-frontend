@@ -35,7 +35,7 @@
     </v-app-bar>
 
     <v-main>
-      <Calendar :start="start" :reserves="reserves" @reserveFilter="reserveFilter"/>
+      <Calendar :start="start" :reserves="reserves" @updateReserves="updateReserves"/>
     </v-main>
   </v-app>
 </template>
@@ -95,7 +95,7 @@ export default {
       return num < 10 ? '0' + num : num;
     },
 
-    reserveFilter(reservesParam) {
+    updateReserves(reservesParam) {
       this.reserves = reservesParam;
     }
   },
