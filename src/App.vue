@@ -6,13 +6,13 @@
         dark
     >
       <div class="d-flex align-center">
-        <v-img
-            alt="Telcotrend logo"
-            contain
-            min-width="100"
-            :src="logoPath"
-            width="100"
-        />
+<!--        <v-img-->
+<!--            alt="Telcotrend logo"-->
+<!--            contain-->
+<!--            min-width="100"-->
+<!--            :src="logoPath"-->
+<!--            width="100"-->
+<!--        />-->
       </div>
 
       <v-spacer></v-spacer>
