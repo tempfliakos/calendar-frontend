@@ -16,6 +16,7 @@
             :event-color="getEventColor"
             :first-interval=6
             :interval-count=15
+            class="eventSummary"
         >
           <template v-slot:event="{ event }">
             <div
@@ -177,8 +178,8 @@ export default {
       today: this.parseDate(new Date()),
       dialogOpen: false,
       actualEvent: {},
-      colors : ['#528BBF','#DB6363','#F89AFA',
-        '#75CF68', '#D6D470', '#C0774E',
+      colors: ['#528BBF', '#DB6363', '#F89AFA',
+        '#00FFBF', '#D6D470', '#C0774E',
         '#ACACAC'],
       weekly: false,
       repeatUntil: (new Date(Date.now() - (new Date()).getTimezoneOffset() * 60000)).toISOString().substr(0, 10),
@@ -194,6 +195,42 @@ export default {
 
   methods: {
 
+    invertColor(hex, bw = true) {
+      if (hex.indexOf('#') === 0) {
+        hex = hex.slice(1);
+      }
+      if (hex.length === 3) {
+        hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
+      }
+      if (hex.length !== 6) {
+        throw new Error('Invalid HEX color.');
+      }
+      let r = parseInt(hex.slice(0, 2), 16),
+          g = parseInt(hex.slice(2, 4), 16),
+          b = parseInt(hex.slice(4, 6), 16);
+      if (bw) {
+        return (r * 0.299 + g * 0.587 + b * 0.114) > 170
+            ? '#000000'
+            : '#FFFFFF';
+      }
+      // invert color components
+      r = (255 - r).toString(16);
+      g = (255 - g).toString(16);
+      b = (255 - b).toString(16);
+      // pad each with zeros and return
+      return "#" + this.padZero(r) + this.padZero(g) + this.padZero(b);
+    },
+
+    padZero(str, len) {
+      len = len || 2;
+      let zeros = new Array(len).join('0');
+      return (zeros + str).slice(-len);
+    },
+
+    asd(hex) {
+      return (Number(`0x1${hex}`) ^ 0xFFFFFF).toString(16).substr(1).toUpperCase()
+    },
+
     eventSummary(event) {
       const eventSummaryClass = 'v-event-summary'
       const start = new Date(event.start);
@@ -206,7 +243,8 @@ export default {
         attendesCountText = `(${event.attendees_count} fő)`;
       }
 
-      return `<span class="${eventSummaryClass}">
+
+      return `<span class="${eventSummaryClass}" style="margin:5px; color: ${this.invertColor(event.color)}">
          <strong>${startTime} - ${endTime}</strong>
             <br/>
         ${event.name} ${attendesCountText}
@@ -388,4 +426,7 @@ export default {
 </script>
 
 <style scoped>
+  .eventSummary div:hover {
+    opacity: 0.5 !important;
+  }
 </style>
