@@ -28,6 +28,7 @@
         <v-dialog
             v-model="dialogOpen"
             max-width="300"
+            @click:outside="clickOutside"
         >
           <v-form v-model="valid" ref="form">
             <v-card>
@@ -420,6 +421,10 @@ export default {
       this.dialogOpen = !this.dialogOpen;
       this.weekly = false;
     },
+
+    clickOutside() {
+      this.actualEvent = {};
+    }
   },
 }
 
@@ -428,5 +433,9 @@ export default {
 <style scoped>
   .eventSummary div:hover {
     opacity: 0.5 !important;
+  }
+
+  .eventSummary >>> .v-calendar-daily__day-interval:hover {
+    background-color: #424040 !important;
   }
 </style>
