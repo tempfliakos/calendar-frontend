@@ -3,14 +3,14 @@
     <v-col>
       <v-sheet height="55em">
         <v-calendar
-            ref="calendar"
-            :now="today"
-            :value="parseDate(start)"
-            :events="this.parseReserves()"
-            color="#528BBF"
-            type="week"
-            locale="hu-HU"
-            :weekdays="[1, 2, 3, 4, 5]"
+          ref="calendar"
+          :now="today"
+          :value="parseDate(start)"
+          :events="this.parseReserves()"
+          color="#528BBF"
+          type="week"
+          locale="hu-HU"
+          :weekdays="[1, 2, 3, 4, 5]"
             @click:event="this.showEvent"
             @click:time="this.createElement"
             :event-color="getEventColor"
@@ -26,9 +26,9 @@
         </v-calendar>
 
         <v-dialog
-            v-model="dialogOpen"
-            max-width="300"
-            @click:outside="clickOutside"
+          v-model="dialogOpen"
+          max-width="300"
+          @click:outside="clickOutside"
         >
           <v-form v-model="valid" ref="form">
             <v-card>
@@ -51,79 +51,79 @@
                   </v-btn>
                 </div>
                 <v-text-field
-                    label="Megbeszélés neve"
-                    v-model="actualEvent.name"
-                    :value="actualEvent.name"
-                    :rules="emptyRules"
-                    @blur="validate"
+                  label="Megbeszélés neve"
+                  v-model="actualEvent.name"
+                  :value="actualEvent.name"
+                  :rules="emptyRules"
+                  @blur="validate"
                 ></v-text-field>
 
                 <v-text-field
-                    label="Mettől"
-                    v-model="actualEvent.startTime"
-                    :value="actualEvent.startTime"
-                    type="time"
-                    :rules="emptyRules"
-                    @blur="validate"
-                    dark
+                  label="Mettől"
+                  v-model="actualEvent.startTime"
+                  :value="actualEvent.startTime"
+                  type="time"
+                  :rules="emptyRules"
+                  @blur="validate"
+                  dark
                 ></v-text-field>
 
                 <v-text-field
-                    label="Meddig"
-                    v-model="actualEvent.endTime"
-                    :value="actualEvent.endTime"
-                    type="time"
-                    :rules="emptyRules"
-                    @blur="validate"
+                  label="Meddig"
+                  v-model="actualEvent.endTime"
+                  :value="actualEvent.endTime"
+                  type="time"
+                  :rules="emptyRules"
+                  @blur="validate"
                 ></v-text-field>
 
                 <v-text-field
-                    label="Résztvevők száma"
-                    v-model="actualEvent.attendees_count"
-                    :value="actualEvent.attendees_count"
-                    type="number"
+                  label="Résztvevők száma"
+                  v-model="actualEvent.attendees_count"
+                  :value="actualEvent.attendees_count"
+                  type="number"
                 ></v-text-field>
 
                 <v-textarea
-                    label="Résztvevők"
-                    v-model="actualEvent.attendees"
-                    :value="actualEvent.attendees"
-                    rows="3"
-                    hint="Résztvevők felsorolása"
+                  label="Résztvevők"
+                  v-model="actualEvent.attendees"
+                  :value="actualEvent.attendees"
+                  rows="3"
+                  hint="Résztvevők felsorolása"
                 ></v-textarea>
 
                 <v-checkbox
-                    v-model="weekly"
-                    label="Heti ismétlődés"
-                    :value="weekly"
-                    hide-details
-                    dark
+                  v-model="weekly"
+                  label="Heti ismétlődés"
+                  :value="weekly"
+                  hide-details
+                  dark
                 ></v-checkbox>
 
                 <v-menu
-                    v-model="datePicker"
-                    :close-on-content-click="false"
-                    :nudge-right="40"
-                    transition="scale-transition"
-                    offset-y
-                    min-width="auto"
-                    v-if="weekly"
-                    dark
+                  v-model="datePicker"
+                  :close-on-content-click="false"
+                  :nudge-right="40"
+                  transition="scale-transition"
+                  offset-y
+                  min-width="auto"
+                  v-if="weekly"
+                  dark
                 >
                   <template v-slot:activator="{ on, attrs }">
                     <v-text-field
-                        v-model="repeatUntil"
-                        label="Ismétlődés eddig"
-                        prepend-icon="mdi-calendar"
-                        readonly
-                        v-bind="attrs"
-                        v-on="on"
-                        locale="hu-hu"
-                        dark
+                      v-model="repeatUntil"
+                      label="Ismétlődés eddig"
+                      prepend-icon="mdi-calendar"
+                      readonly
+                      v-bind="attrs"
+                      v-on="on"
+                      locale="hu-hu"
+                      dark
                     ></v-text-field>
                   </template>
                   <v-date-picker
-                      v-model="repeatUntil"
+                    v-model="repeatUntil"
                       @input="datePicker = false"
                       locale="hu-hu"
                       dark
@@ -134,10 +134,10 @@
 
               <v-card-actions>
                 <v-btn
-                    color="red darken-1"
-                    text
-                    @click="remove"
-                    v-if="actualEvent.id"
+                  color="red darken-1"
+                  text
+                  @click="remove"
+                  v-if="actualEvent.id"
                 >
                   <v-icon>mdi-delete</v-icon>
                 </v-btn>
@@ -424,18 +424,39 @@ export default {
 
     clickOutside() {
       this.actualEvent = {};
-    }
+    },
   },
-}
-
+};
 </script>
 
 <style scoped>
-  .eventSummary div:hover {
-    opacity: 0.5 !important;
-  }
+.eventSummary >>> .v-event-timed{
+	transition: 0.2s;
+}
+.eventSummary >>> .v-event-timed:hover {
+	filter: drop-shadow(3px 7px 7px #181818);
+	transform: scale(1.1);
+	z-index: 10;
+}
 
-  .eventSummary >>> .v-calendar-daily__day-interval:hover {
-    background-color: #424040 !important;
-  }
+.eventSummary >>> .v-calendar-daily__day-interval:hover {
+  background-color: #424040 !important;
+}
+
+.eventSummary
+  >>> .v-calendar-daily__day.v-present
+  .v-calendar-daily__day-interval,
+.eventSummary >>> .v-calendar-daily_head-day.v-present {
+  background-color: #528bbf29 !important;
+}
+
+.eventSummary
+  >>> .v-calendar-daily__day.v-present
+  .v-calendar-daily__day-interval:hover {
+  background-color: #424040 !important;
+}
+
+>>> .v-dialog.v-dialog--active {
+	max-width: 500px !important;
+}
 </style>
